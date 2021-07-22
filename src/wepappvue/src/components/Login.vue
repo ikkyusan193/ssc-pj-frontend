@@ -4,6 +4,7 @@
       <v-container fluid fill-height>
         <v-layout align-center justify-center>
           <v-flex xs12 sm8 md4>
+            <v-alert v-model="alert" align="center" :value="alert" dismissible color="red" border="left" elevation="5" colored-border icon="mdi-cancel"><strong>{{this.alertText}}</strong></v-alert>
             <v-card class="elevation-12">
               <v-toolbar dark color="primary">
                 <v-toolbar-title>Welcome to Bryant-Insurance</v-toolbar-title>
@@ -92,8 +93,10 @@ export default {
     return {
       username: "",
       password: "",
+      alert: false,
+      requestStatus: null,
+      alertText: "",
       dialog: false,
-      responseSuccess: false
     };
   },
   methods: {
@@ -102,13 +105,24 @@ export default {
       let requestData = new FormData();
       requestData.append("username",this.username);
       requestData.append("password",this.password);
-
-      let response = await api.login(requestData);
-      if(response.data.success){
-        this.$router.push({name:"Home"});
+      let requestResponse = await api.login(requestData);
+      this.response = requestResponse;
+      this.requestStatus = this.response.data.success;
+      this.alertText = this.response.data.message;
+      console.log(requestResponse);
+      if(this.requestStatus){
+        await this.$router.push({name: "Home"}); // original was this.$router.push({name: "Home"});
       }
-      this.responseSuccess = response;
     },
+  },
+  watch: {
+    requestStatus(val){
+      if(!val){
+        this.alert = true
+        setTimeout(()=>{this.alert=false},15000)
+        this.requestStatus = null
+      }
+    }
   },
   mounted() {
   },

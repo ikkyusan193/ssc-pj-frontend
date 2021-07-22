@@ -4,7 +4,7 @@
 <!--    TOOLBAR AT THE TOP-->
   <div>
     <v-toolbar color="indigo darken-4" max-height="60">
-      <v-app-bar-nav-icon @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
+      <v-app-bar-nav-icon color="white" @click.stop="drawer = !drawer"></v-app-bar-nav-icon>
       <v-toolbar-title class="text-uppercase white--text">
         <span class="font-weight-light">Bryant</span>
         <span> Insurance</span>
@@ -20,7 +20,7 @@
       </v-container>
     </v-main>
 
-    <v-navigation-drawer color="#09151E" dark v-model="drawer" absolute bottom temporary >
+    <v-navigation-drawer v-if="$store.state.isLoggedIn === true" color="#09151E" dark v-model="drawer" absolute bottom temporary >
       <v-list dense nav class="py-0" >
         <v-list-item two-line :class="'px-10'">
           <v-list-item-avatar size="50">
@@ -47,26 +47,24 @@
           </v-list-item-content>
         </v-list-item>
       </v-list>
-<!--      <template class="">-->
-<!--      <v-row align="end">-->
-<!--        <div>-->
-<!--          <v-btn class="pa-2" block v-on:click="logout" tile>Logout </v-btn>-->
+
+<!--      ORIGINAL LOGOUT BUTTON-->
+<!--      <template v-slot:append>-->
+<!--        <div class="pa-2" >-->
+<!--          <v-btn block v-on:click="logout" tile>-->
+<!--            Logout-->
+<!--          </v-btn>-->
 <!--        </div>-->
-<!--      </v-row>-->
 <!--      </template>-->
-      <template v-slot:append>
+
+
         <div class="pa-2" >
           <v-btn block v-on:click="logout" tile>
             Logout
           </v-btn>
         </div>
-      </template>
 
     </v-navigation-drawer>
-
-
-
-
   </v-app>
 </template>
 
@@ -111,8 +109,14 @@ export default {
       if(response.data.success){
         await this.$router.push("/Login")
       }
-      this.responseSuccess = response;
     },
   },
+
 };
 </script>
+
+<style>
+#app{
+  background: url("https://www.therev.co.nz/wp-content/uploads/2020/07/656668.jpg");
+}
+</style>

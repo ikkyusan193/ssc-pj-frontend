@@ -4,6 +4,7 @@ import Home from '../components/Home.vue'
 import Login from '../components/Login.vue'
 import Crud from '../components/Crud'
 import User from '../components/User'
+import Carrier from "../components/Carrier";
 import store from '../store/index'
 
 
@@ -33,6 +34,7 @@ const routes = [
     {
         path: '/Carriers',
         name: 'Carrier',
+        component: Carrier
     },
 
 ]

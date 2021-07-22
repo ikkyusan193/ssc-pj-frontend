@@ -31,5 +31,8 @@ export default new Vuex.Store({
             commit("setRole", "");
         },
     },
+    getters:{
+        getCurrentLoggedInUser: state => state.username
+    },
     modules: {},
 })

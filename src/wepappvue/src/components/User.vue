@@ -1,13 +1,14 @@
-<template class="max-">
+<template>
   <v-app>
-    <v-data-table :headers="headers" :items="users" class="elevation-1" height="550px" :search="search">
+    <v-alert dismissible v-model="alert" :value="alert"  :color="alertColor" :icon="alertIcon" border="left" elevation="2" colored-border><strong>{{this.alertText}}</strong></v-alert>
+    <v-data-table :headers="headers" :items="users" class="elevation-5" :search="search">
       <template v-slot:top>
         <v-toolbar flat>
           <v-toolbar-title>USERS LIST</v-toolbar-title>
           <v-divider class="mx-4" inset vertical></v-divider>
           <v-text-field v-model="search" append-icon="mdi-magnify" label="Search" single-line hide-details></v-text-field>
           <v-spacer></v-spacer>
-          <v-dialog persistent no-click-animation v-model="dialog" max-width="1000px" >
+          <v-dialog persistent no-click-animation v-model="dialog" max-width="1000px">
             <template v-slot:activator="{ on, attrs }">
               <v-btn color="primary" dark class="mb-2" v-bind="attrs" v-on="on">New User</v-btn>
             </template>
@@ -16,7 +17,6 @@
                 <span class="text-h5">{{ formTitle }}</span>
               </v-card-title>
               <v-card-text>
-                <v-container>
                   <v-row>
                     <v-col cols="12" sm="6" >
                       <v-text-field v-model="editedItem.username" label="Username"></v-text-field>
@@ -24,13 +24,18 @@
                     <v-col cols="12" sm="6" >
                       <v-text-field v-model="editedItem.role" label="Role"></v-text-field>
                     </v-col>
+                    <v-col cols="12" v-if="editedIndex < 0">
+                      <v-text-field type='password' v-model="editedItem.password" label="Password"></v-text-field>
+                    </v-col>
+                    <v-col cols="12" sm="6" v-if="editPassword === true" >
+                      <v-text-field  type='password' v-model="editedItem.password" label="Password"></v-text-field>
+                    </v-col>
                   </v-row>
-                </v-container>
               </v-card-text>
               <v-card-actions>
                 <v-spacer></v-spacer>
                 <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-                <v-btn color="blue darken-1" text @click="save(editedItem.id)">Save</v-btn>
+                <v-btn color="blue darken-1" text @click="save(tempUsername)">Save</v-btn>
               </v-card-actions>
             </v-card>
           </v-dialog>
@@ -51,7 +56,8 @@
       </template>
       <template v-slot:item.actions="{ item }">
         <v-icon small class="mr-2" @click="editUser(item)" title="Edit User">mdi-pencil</v-icon>
-        <v-icon small @click="confirmDeleteUser(item)" title="Delete User">mdi-delete</v-icon>
+        <v-icon v-if="currentLoggedInUser === item.username" small @click="changePassword(item)" title="Change Password">mdi-key</v-icon>
+        <v-icon v-if="currentLoggedInUser === item.username" small @click="confirmDeleteUser(item)" title="Delete User">mdi-delete</v-icon>
       </template>
     </v-data-table>
   </v-app>
@@ -68,6 +74,15 @@ export default {
       users: [],
       search: "",
       editedIndex: -1,
+      editPassword: false,
+      currentLoggedInUser: this.$store.state.username,
+      tempPassword: "",
+      tempUsername: "",
+      //NOTIFICATIONS STUFFS
+      requestStatus: "",
+      response: "",
+      alert: false,
+      alertText: "",
       headers: [
         {text: 'User Id', value: 'sid'},
         {text: 'Username', value: 'username'},
@@ -78,11 +93,15 @@ export default {
       editedItem: {
         sid: '',
         username: '',
+        password: '',
+        // confirmPassword: '',
         role: '',
       },
       defaultItem: {
         sid: '',
         username: '',
+        password: '',
+        // confirmPassword: '',
         role: '',
       },
     };
@@ -94,9 +113,19 @@ export default {
       this.users = data;
       console.log(data)
     },
+    changePassword(user){
+      this.editedIndex = this.users.indexOf(user)
+      this.editedItem = Object.assign({}, user)
+      this.editPassword = true;
+      this.tempPassword = this.editedItem.password;
+      this.tempUsername = this.editedItem.username;
+      this.editedItem.password = "";
+      this.dialog = true
+    },
     editUser(user) {
       this.editedIndex = this.users.indexOf(user)
       this.editedItem = Object.assign({}, user)
+      this.tempUsername = this.editedItem.username;
       this.dialog = true
     },
     confirmDeleteUser(item){
@@ -110,9 +139,14 @@ export default {
       window.location.reload();
     },
     close () {
+      if(this.editPassword == true){
+        this.editedItem.password = this.tempPassword;
+        this.tempPassword = "";
+      }
       this.dialog = false
-      this.$nextTick(() => {
-        this.editedItem = Object.assign({}, this.defaultItem)
+      this.editPassword = false
+      this.tempUsername = ""
+      this.$nextTick(() => {this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
       })
     },
@@ -123,15 +157,22 @@ export default {
         this.editedIndex = -1
       })
     },
-    save: async function(id) {
+    save: async function(username) {
       if (this.editedIndex > -1) {
-        let response = await api.updateUser(this.editedItem,id)
-        console.log(response)
-        window.location.reload();
+        let requestResponse = await api.updateUser(this.editedItem,username)
+        console.log(requestResponse)
+        this.response = requestResponse;
+        this.requestStatus = this.response.data.success;
+        this.alertText = this.response.data.message;
+        this.alert = true;
+        // window.location.reload();
       } else {
-        let response = await api.createUser(this.editedItem)
-        console.log(response)
-        window.location.reload();
+        let requestResponse = await api.createUser(this.editedItem)
+        console.log(requestResponse)
+        this.response = requestResponse;
+        this.requestStatus = this.response.data.success;
+        this.alertText = this.response.data.message;
+        this.alert = true;
       }
       this.close()
     },
@@ -143,6 +184,12 @@ export default {
     formTitle () {
       return this.editedIndex === -1 ? 'Create new user' : 'Edit user'
     },
+    alertColor(){
+      return this.requestStatus ? 'green' : 'red'
+    },
+    alertIcon(){
+      return this.requestStatus ? 'mdi-checkbox-marked-circle' : 'mdi-cancel'
+    }
   },
   watch: {
     dialog (val) {

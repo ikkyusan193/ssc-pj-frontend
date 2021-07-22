@@ -13,6 +13,7 @@ Vue.config.productionTip = false
 axios.defaults.baseURL = "/api/"
 
 new Vue({
+  el: '#app',
   store,
   router,
   vuetify,
