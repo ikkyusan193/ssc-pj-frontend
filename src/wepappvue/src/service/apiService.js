@@ -30,7 +30,14 @@ const apiClient = {
         const response = await axios.post("/carrier/create",requestData)
         return response
     },
-
+    async addCarrierToClient(requestData, cid){
+        const response = await axios.post("/carrier/create/"+cid, requestData)
+        return response
+    },
+    async deleteCarrierFromClient(cid, id){
+        const response = await axios.delete("/carrier/delete/"+cid+"/"+id)
+        return response
+    },
     // CLIENT API'S
     async readClient() {
         const response = await axios.get("/client");
@@ -65,6 +72,14 @@ const apiClient = {
         const response = await axios.delete("/user/"+username)
         return response
     },
+    async changePasswordUser(requestData,username){
+        const response = await axios.patch("/user/changepw/"+username, requestData)
+        return response
+    },
+    async readRole(){
+        const response = await axios.get("/role")
+        return response
+    }
 };
 
 export default apiClient

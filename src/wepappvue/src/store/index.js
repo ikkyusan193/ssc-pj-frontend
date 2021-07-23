@@ -32,7 +32,32 @@ export default new Vuex.Store({
         },
     },
     getters:{
-        getCurrentLoggedInUser: state => state.username
+        getCurrentLoggedInUser: state => state.username,
+        getRank(state){
+            if (state.role === 'ROLE_ADMIN'){
+                return 1;
+            }
+            return 0;
+        },
+        getDrawer(state){
+            let adminDrawer = [
+                { title: 'Home', icon: 'mdi-home-city', route: '/' },
+                { title: 'Add/Modify Users', icon: 'mdi-account',route:'/Users'},
+                { title: 'Add/Modify Client', icon: 'mdi-account-multiple-plus', route: '/Clients' },
+                { title: 'Add/Modify Carrier', icon: 'mdi-file-document-outline', route: '/Carriers' },
+                { title: 'Calendar', icon: 'mdi-calendar', route: '/Calendar' },
+            ]
+            let userDrawer = [
+                { title: 'Home', icon: 'mdi-home-city', route: '/' },
+                { title: 'Add/Modify Users', icon: 'mdi-account',route:'/Users'},
+                { title: 'Add/Modify Client', icon: 'mdi-account-multiple-plus', route: '/Clients' },
+                { title: 'Calendar', icon: 'mdi-calendar', route: '/Calendar' },
+            ]
+            if (state.role === 'ROLE_ADMIN'){
+                return adminDrawer;
+            }
+            return userDrawer;
+        },
     },
     modules: {},
 })

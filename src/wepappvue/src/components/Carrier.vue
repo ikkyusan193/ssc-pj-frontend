@@ -98,9 +98,11 @@ export default {
     deleteCarrier: async function () {
       let response = await api.deleteCarrier(this.editedItem.id)
       console.log(response)
+      this.dialogDelete = false
       this.requestStatus = this.response.data.success;
       this.alertText = this.response.data.message;
       this.alert = true;
+      await this.readCarrier();
     },
     close() {
       this.dialog = false
@@ -108,6 +110,7 @@ export default {
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
+        this.readCarrier();
       })
     },
     closeDelete() {
@@ -124,7 +127,7 @@ export default {
         this.requestStatus = this.response.data.success;
         this.alertText = this.response.data.message;
         this.alert = true;
-      this.close()
+        this.close()
     },
   },
   mounted() {

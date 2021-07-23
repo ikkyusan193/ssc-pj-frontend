@@ -1,5 +1,6 @@
 <template class="max-">
 <v-app>
+  <v-alert dismissible v-model="alert" :value="alert" :color="alertColor" :icon="alertIcon" border="left" elevation="2" colored-border><strong>{{ this.alertText }}</strong></v-alert>
   <v-data-table :headers="headers" :items="clients" class="elevation-1" height="550px" :search="search">
     <template v-slot:top>
       <v-toolbar flat>
@@ -19,29 +20,29 @@
               <v-container>
                 <v-row>
                   <v-col cols="12" sm="6" >
-                    <v-text-field v-model="editedItem.firstname" label="Firstname"></v-text-field>
+                    <v-text-field v-model="editedItem.firstname" label="Firstname*"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" >
-                    <v-text-field v-model="editedItem.lastname" label="Lastname" ></v-text-field>
+                    <v-text-field v-model="editedItem.lastname" label="Lastname*" ></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="editedItem.email" label="Email"></v-text-field>
+                    <v-text-field v-model="editedItem.email" label="Email*"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6">
-                    <v-text-field v-model="editedItem.phoneNumber" label="Phone Number"></v-text-field>
+                    <v-text-field type="number" v-model="editedItem.phoneNumber" label="Phone Number*"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" >
                     <v-menu v-model="menu0" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="editedItem.dateSold" label="Date Sold" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                        <v-text-field v-model="editedItem.dateSold" label="Date Sold*" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                       </template>
-                      <v-date-picker v-model="editedItem.dateSold" @input="menu0 = false"></v-date-picker>
+                      <v-date-picker show-current v-model="editedItem.dateSold" @input="menu0 = false"></v-date-picker>
                     </v-menu>
                   </v-col>
                   <v-col cols="12" sm="6" >
                     <v-menu v-model="menu1" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="editedItem.quoteDate" label="Quote Date" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                        <v-text-field v-model="editedItem.quoteDate" label="Quote Date*" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                       </template>
                       <v-date-picker v-model="editedItem.quoteDate" @input="menu1 = false"></v-date-picker>
                     </v-menu>
@@ -49,7 +50,7 @@
                   <v-col cols="12" sm="6" >
                     <v-menu v-model="menu2" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="editedItem.expiryDate" label="Expiry Date" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                        <v-text-field v-model="editedItem.expiryDate" label="Expiry Date*" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                       </template>
                       <v-date-picker v-model="editedItem.expiryDate" @input="menu2 = false"></v-date-picker>
                     </v-menu>
@@ -57,16 +58,16 @@
                   <v-col cols="12" sm="6" >
                     <v-menu v-model="menu3" :close-on-content-click="false" :nudge-right="40" transition="scale-transition" offset-y min-width="auto">
                       <template v-slot:activator="{ on, attrs }">
-                        <v-text-field v-model="editedItem.latestContactDate" label="Latest Contact Date" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
+                        <v-text-field v-model="editedItem.latestContactDate" label="Latest Contact Date*" prepend-icon="mdi-calendar" readonly v-bind="attrs" v-on="on"></v-text-field>
                       </template>
                       <v-date-picker v-model="editedItem.latestContactDate" @input="menu3 = false"></v-date-picker>
                     </v-menu>
                   </v-col>
                   <v-col cols="12" sm="6" >
-                    <v-text-field v-model="editedItem.quoteStatus" label="Quote Status"></v-text-field>
+                    <v-text-field v-model="editedItem.quoteStatus" label="Quote Status*"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" >
-                    <v-text-field v-model="editedItem.commissionAmount" label="Commission Amount"></v-text-field>
+                    <v-text-field type="number" v-model="editedItem.commissionAmount" label="Commission Amount*"></v-text-field>
                   </v-col>
                   <v-col cols="12" sm="6" >
                     <v-text-field v-model="editedItem.referral" label="Referral"></v-text-field>
@@ -78,7 +79,7 @@
             <v-card-actions>
               <v-spacer></v-spacer>
               <v-btn color="blue darken-1" text @click="close">Cancel</v-btn>
-              <v-btn color="blue darken-1" text @click="save(editedItem.id)">Save</v-btn>
+              <v-btn color="blue darken-1" :disabled="isCreateButtonDisabled" text @click="save(editedItem.id)">Save</v-btn>
             </v-card-actions>
           </v-card>
         </v-dialog>
@@ -89,8 +90,8 @@
             <v-container>
               <v-row>
                 <v-col cols="12" sm="6" >
-                  <v-text-field v-model="toAddCarrier" label="Carrier Type"></v-text-field>
-                  <v-btn color="primary" dark class="mb-2" tile @click="addCarrier(editedItem.id)">Add Carrier</v-btn>
+                  <v-select v-model="toAddCarrierToClient" item-text="type"  item-value="type" :items="carriers"  label="Carrier type" solo></v-select>
+                  <v-btn color="primary" dark class="mb-2" tile @click="addCarrierToClient(editedItem.id)">Add Carrier</v-btn>
                 </v-col>
                   <v-col sm="6" >
                   <v-simple-table dark>
@@ -100,7 +101,7 @@
                       <tbody>
                       <tr v-for="c in carrier" :key="c.id">
                         <td>{{ c.type }}</td>
-                        <td><v-icon right title="Delete Carrier" @click="deleteCarrier(c.id)">mdi-delete</v-icon></td>
+                        <td><v-icon right title="Delete Carrier" @click="deleteCarrierFromClient(c.id)">mdi-delete</v-icon></td>
                       </tr>
                       </tbody>
                     </template>
@@ -149,10 +150,15 @@ export default {
       dialogDelete: false,
       dialogCarrier: false,
       clients: [],
+      carriers: [],
       search: "",
-      toAddCarrier: "",
+      toAddCarrierToClient: "",
       editedIndex: -1,
       carrier: [],
+      alert: false,
+      alertText: "",
+      requestStatus: "",
+      response: "",
       headers: [
         {text: 'Client Id', value: 'id'},
         {text: 'Firstname', value: 'firstname'},
@@ -166,7 +172,6 @@ export default {
         {text: 'Commission Amount', value: 'commissionAmount'},
         {text: 'Actions', value: 'actions', sortable: false},
       ],
-      // TODO: FIX THIS LATER
       editedItem: {
         id: '',
         firstname: '',
@@ -182,7 +187,7 @@ export default {
         referral: '',
       },
       defaultItem: {
-        id: '',
+        id: 0,
         firstname: '',
         lastname: '',
         email: '',
@@ -201,32 +206,47 @@ export default {
   methods: {
     readClients: async function () {
       const data = await api.readClient();
+      const data2 = await api.readCarrier();
+      this.carriers = data2;
       this.clients = data;
       console.log(data)
+      console.log(data2)
     },
     setCarrier: async function(client){
       this.editedItem = Object.assign({},client)
       let carrier = await api.getCarrier(this.editedItem.id)
-      console.log(this.editedItem);
       this.carrier = carrier;
-      console.log(carrier);
       this.dialogCarrier = true;
+      await this.readClients();
     },
-    deleteCarrier: async function(id){
-      let response = await api.deleteCarrier(id)
-      console.log(response)
+    deleteCarrierFromClient: async function(id){
+      console.log(this.editedItem.id)
+      console.log(id)
+      let requestResponse = await api.deleteCarrierFromClient(this.editedItem.id,id)
+      console.log(requestResponse)
       this.dialogCarrier = false;
+      this.response = requestResponse;
+      this.requestStatus = this.response.data.success;
+      this.alertText = this.response.data.message;
+      this.alert = true;
+      await this.readClients();
     },
-    addCarrier: async function(id){
+    addCarrierToClient: async function(id){
       console.log(id)
       const requestData = {
-        type: this.toAddCarrier,
+        type: this.toAddCarrierToClient,
       }
-      console.log(requestData.data)
-      let response = await api.addCarrier(requestData,this.editedItem.id)
-      console.log(response)
-      this.toAddCarrier = "";
+      console.log(requestData)
+      console.log(this.editedItem.id)
+      let requestResponse = await api.addCarrierToClient(requestData,this.editedItem.id)
+      console.log(requestResponse)
+      this.toAddCarrierToClient = "";
       this.dialogCarrier = false;
+      this.response = requestResponse;
+      this.requestStatus = this.response.data.success;
+      this.alertText = this.response.data.message;
+      this.alert = true;
+      await this.readClients();
     },
     editClient(client) {
       this.editedIndex = this.clients.indexOf(client)
@@ -239,12 +259,17 @@ export default {
       this.dialogDelete = true
     },
     deleteClient: async function() {
-      let response = await api.deleteClient(this.editedItem.id)
-      console.log(response)
-      window.location.reload();
+      let requestResponse = await api.deleteClient(this.editedItem.id)
+      this.response = requestResponse;
+      this.requestStatus = this.response.data.success;
+      this.alertText = this.response.data.message;
+      this.alert = true;
+      await this.readClients();
     },
     close () {
       this.dialog = false
+      this.dialogCarrier = false
+      this.dialogDelete = false
       this.$nextTick(() => {
         this.editedItem = Object.assign({}, this.defaultItem)
         this.editedIndex = -1
@@ -260,14 +285,19 @@ export default {
     save: async function(id) {
       // edit the user
       if (this.editedIndex > -1) {
-        let response = await api.updateClient(this.editedItem,id)
-        console.log(response)
-        window.location.reload();
+        let requestResponse = await api.updateClient(this.editedItem,id)
+        console.log(requestResponse)
+        this.response = requestResponse;
        } else { // add new user
-        let response = await api.createClient(this.editedItem)
-        console.log(response)
-        window.location.reload();
+        console.log(this.editedItem)
+        let requestResponse = await api.createClient(this.editedItem);
+        console.log(requestResponse)
+        this.response = requestResponse;
       }
+      this.requestStatus = this.response.data.success;
+      this.alertText = this.response.data.message;
+      this.alert = true;
+      await this.readClients();
       this.close()
     },
   },
@@ -278,6 +308,25 @@ export default {
     formTitle () {
       return this.editedIndex === -1 ? 'Create new client' : 'Edit client'
     },
+    alertColor() {
+      return this.requestStatus ? 'green' : 'red'
+    },
+    alertIcon() {
+      return this.requestStatus ? 'mdi-checkbox-marked-circle' : 'mdi-cancel'
+    },
+    isCreateButtonDisabled() {
+      return (this.editedItem.firstname === '') ||
+          (this.editedItem.lastname === '') ||
+          (this.editedItem.email === '') ||
+          (this.editedItem.phone_number === '') ||
+          (this.editedItem.dateSold === '') ||
+          (this.editedItem.quoteDate === '') ||
+          (this.editedItem.expiryDate === '') ||
+          (this.editedItem.latestContactDate === '') ||
+          (this.editedItem.quoteStatus === '') ||
+          (this.editedItem.commissionAmount === '') ||
+          (this.editedItem.phoneNumber.length !== 10);
+    }
   },
   watch: {
     dialog (val) {
